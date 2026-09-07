@@ -1,0 +1,9 @@
+README.md
+pyproject.toml
+src/NWC/__init__.py
+src/NWC/accounts.py
+src/NWC/main.py
+src/NWC.egg-info/PKG-INFO
+src/NWC.egg-info/SOURCES.txt
+src/NWC.egg-info/dependency_links.txt
+src/NWC.egg-info/top_level.txt
