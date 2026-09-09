@@ -1,14 +1,18 @@
 import datetime
 from dataclasses import asdict
 import numpy as np
+import numbers
 import pandas as pd
 from pandas import DataFrame
 import tkinter as tk
 from tkinter import ttk
 
 from NWC.accounts import bankAccount, investmentAccount
+from NWC.incomes import salary, inheritance
+from NWC.debts import studentLoans, carLoan
 
 
+# --- Functions to create bank and investment accounts ---
 def create_rkb_accounts() -> DataFrame:
     pnc_checking = bankAccount(
         institution="PNC",
@@ -231,6 +235,198 @@ def create_shared_accounts() -> DataFrame:
     return df
 
 
+def create_accounts_df() -> DataFrame:
+    rkb_accounts_df = create_rkb_accounts()
+    rcp_accounts_df = create_rcp_accounts()
+    shared_accounts_df = create_shared_accounts()
+
+    all_accounts_df = pd.concat(
+        [rkb_accounts_df, rcp_accounts_df, shared_accounts_df], ignore_index=True
+    )
+    all_accounts_df.loc["Total", "institution"] = "TOTAL"
+    all_accounts_df.loc["Total", "value"] = all_accounts_df["value"].sum()
+
+    return all_accounts_df
+
+
+# --- Functions to create salary and inheritance incomes ---
+def create_rkb_incomes() -> DataFrame:
+
+    hl_yearly_salary = 110_000
+    hunterlab_salary = salary(
+        institution="HunterLab",
+        owner="RKB",
+        monthly_value=hl_yearly_salary / 12,
+        yearly_value=hl_yearly_salary,
+        last_updated=datetime.datetime(2026, 9, 8),
+    )
+
+    inher_monthly = 2_450
+    rkb_inheritance = inheritance(
+        institution="Inheritance",
+        owner="RKB",
+        monthly_value=inher_monthly,
+        yearly_value=inher_monthly * 12,
+        last_updated=datetime.datetime(2026, 9, 8),
+    )
+
+    incomes_list = [
+        hunterlab_salary,
+        rkb_inheritance,
+    ]
+    df = pd.DataFrame([asdict(income) for income in incomes_list])
+    columns = [
+        "institution",
+        "owner",
+        "monthly_value",
+        "yearly_value",
+        "last_updated",
+    ]
+    df = df[columns]
+
+    return df
+
+
+def create_rcp_incomes() -> DataFrame:
+
+    trinity_yearly_salary = 80_000
+    trinity_salary = salary(
+        institution="Trinity Washington",
+        owner="RCP",
+        monthly_value=trinity_yearly_salary / 12,
+        yearly_value=trinity_yearly_salary,
+        last_updated=datetime.datetime(2026, 9, 8),
+    )
+
+    incomes_list = [
+        trinity_salary,
+    ]
+    df = pd.DataFrame([asdict(income) for income in incomes_list])
+    columns = [
+        "institution",
+        "owner",
+        "monthly_value",
+        "yearly_value",
+        "last_updated",
+    ]
+    df = df[columns]
+
+    return df
+
+
+def create_shared_incomes() -> DataFrame:
+
+    incomes_list = []
+    df = pd.DataFrame([asdict(income) for income in incomes_list])
+    columns = [
+        "institution",
+        "owner",
+        "monthly_value",
+        "yearly_value",
+        "last_updated",
+    ]
+    df = df[columns]
+
+    return df
+
+
+def create_incomes_df() -> DataFrame:
+    rkb_incomes_df = create_rkb_incomes()
+    rcp_incomes_df = create_rcp_incomes()
+    # shared_incomes_df = create_shared_incomes()
+
+    all_incomes_df = pd.concat([rkb_incomes_df, rcp_incomes_df], ignore_index=True)
+    all_incomes_df.loc["Total", "institution"] = "TOTAL"
+    all_incomes_df.loc["Total", "monthly_value"] = all_incomes_df["monthly_value"].sum()
+    all_incomes_df.loc["Total", "yearly_value"] = all_incomes_df["yearly_value"].sum()
+
+    return all_incomes_df
+
+
+# --- Functions to create debts ---
+def create_rkb_debts() -> DataFrame:
+
+    student_monthly_value = 293
+    months_remaining = 72
+    rkb_studentLoans = studentLoans(
+        institution="Nelnet",
+        owner="RKB",
+        monthly_value=student_monthly_value,
+        yearly_value=student_monthly_value * 12,
+        remaining_total=student_monthly_value * months_remaining,
+        months_remaining=months_remaining,
+        last_updated=datetime.datetime(2026, 9, 8),
+    )
+
+    incomes_list = [
+        rkb_studentLoans,
+    ]
+    df = pd.DataFrame([asdict(income) for income in incomes_list])
+    columns = [
+        "institution",
+        "owner",
+        "monthly_value",
+        "yearly_value",
+        "remaining_total",
+        "months_remaining",
+        "last_updated",
+    ]
+    df = df[columns]
+
+    return df
+
+
+def create_rcp_debts() -> DataFrame:
+
+    incomes_list = []
+    df = pd.DataFrame([asdict(income) for income in incomes_list])
+    columns = [
+        "institution",
+        "owner",
+        "monthly_value",
+        "yearly_value",
+        "remaining_total",
+        "months_remaining",
+        "last_updated",
+    ]
+    df = df[columns]
+
+    return df
+
+
+def create_shared_debts() -> DataFrame:
+
+    incomes_list = []
+    df = pd.DataFrame([asdict(income) for income in incomes_list])
+    columns = [
+        "institution",
+        "owner",
+        "monthly_value",
+        "yearly_value",
+        "remaining_total",
+        "months_remaining",
+        "last_updated",
+    ]
+    df = df[columns]
+
+    return df
+
+
+def create_debts_df() -> DataFrame:
+    rkb_debts_df = create_rkb_debts()
+    # rcp_debts_df = create_rcp_debts()
+    # shared_debts_df = create_shared_debts()
+
+    all_debts_df = pd.concat([rkb_debts_df], ignore_index=True)
+    all_debts_df.loc["Total", "institution"] = "TOTAL"
+    all_debts_df.loc["Total", "monthly_value"] = all_debts_df["monthly_value"].sum()
+    all_debts_df.loc["Total", "yearly_value"] = all_debts_df["yearly_value"].sum()
+    all_debts_df.loc["Total", "remaining_total"] = all_debts_df["remaining_total"].sum()
+
+    return all_debts_df
+
+
+# --- Function to create a gui table to view a dataframe ---
 def view_df_gui(dataframe):
     """
     Pops up a clean, native desktop table window.
@@ -269,7 +465,11 @@ def view_df_gui(dataframe):
     # Insert data rows (automatically handles floats smoothly)
     for _, row in dataframe.iterrows():
         # Convert values to list for safe rendering
-        tree.insert("", tk.END, values=list(row))
+        values = [
+            f"{value:.2f}" if isinstance(value, numbers.Real) else value
+            for value in row
+        ]
+        tree.insert("", tk.END, values=values)
 
     root.mainloop()
 
@@ -277,13 +477,17 @@ def view_df_gui(dataframe):
 
 
 if __name__ == "__main__":
-    rkb_accounts_df = create_rkb_accounts()
-    rcp_accounts_df = create_rcp_accounts()
-    shared_accounts_df = create_shared_accounts()
 
-    all_accounts_df = pd.concat(
-        [rkb_accounts_df, rcp_accounts_df, shared_accounts_df], ignore_index=True
+    all_accounts_df = create_accounts_df()
+    all_incomes_df = create_incomes_df()
+    all_debts_df = create_debts_df()
+
+    # view_df_gui(all_accounts_df)
+    # view_df_gui(all_incomes_df)
+    # view_df_gui(all_debts_df)
+
+    combined_net_worth = (
+        all_accounts_df.loc["Total", "value"]
+        - all_debts_df.loc["Total", "remaining_total"]
     )
-    all_accounts_df.loc["Total", "value"] = all_accounts_df["value"].sum()
-
-    view_df_gui(all_accounts_df)
+    print(f"Combined net worth = {combined_net_worth}")
